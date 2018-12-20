@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>电子商城首页</title>
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	
+	<style>
+		.container{
+			margin:100px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<h1>墨风支付首页</h1>
+			<div id="paybox" style="margin: 0 auto">
+			  	<img  id="payimg" alt="" width="200" height="200"/>
+			  	<!-- <img  src="http://localhost:8080/weixin?orderId=2" id="payimg2" alt="" width="200" height="200"/>
+			  	<img  src="http://localhost:8080/weixin?orderId=9" id="payimg3" alt="" width="200" height="200"/> -->
+			  	<h3 id="loading"></h3>
+			 </div>	
+			<div class="bs-example" data-example-id="bordered-table">
+		    <table class="table table-bordered">
+		      <thead>
+		        <tr>
+		          <th>订单号</th>
+		          <th>订单编号</th>
+		          <th>支付金额</th>
+		          <th>支付类型</th>
+		          <th>支付时间</th>
+		          <th>支付用户名</th>
+		          <th>操作</th>
+		        </tr>
+		      </thead>
+		      <tbody>
+		      	<#list orders as order>
+		        <tr>
+		          <th scope="row">${order.id}</th>
+		          <td>${order.orderNumber}</td>
+		          <td>￥${order.payment}元</td>
+		          <td>${(order.payType==1)?string("微信","支付宝")}</td>
+		          <td>${order.created}</td>
+		          <td>${order.username}</td>
+		          <td>
+		          	<#if order.isPay==1>
+		          		<span>已支付</span>
+		          	<#else>	
+		          		<a href="javascript:void(0);" onclick="rumoOrder.pay(this)" data-opid="${order.id}" data-userid="${order.userId}">去支付</a>
+		          		<a href="javascript:void(0);" onclick="rumoOrder.alipay(this)" data-opid="${order.id}" data-userid="${order.userId}">支付宝支付</a>
+		          	</#if>
+		          </td>
+		        </tr>
+		        </#list>
+		      </tbody>
+		    </table>
+	    </div>
+    </div>
+  </div>
+  <script>
+  		var rumoOrder = {
+  			timer :null,
+  			pay :function(obj){
+  				var orderId = $(obj).data("opid");
+  				$("#payimg").attr("src","http://localhost:8080/admin/weixin?orderId="+orderId);
+  				$("#loading").show().text("正在支付中.....");
+  				if(rumoOrder.timer)clearInterval(rumoOrder.timer);
+  				rumoOrder.timer = setInterval(function(){
+  					rumoOrder.listener(orderId);
+  				},5000);
+  			},
+  			
+  			listener:function(orderId){
+  				var promise = $.post("http://localhost:8080/listernpay",{"orderId":orderId});
+  				promise.done(function(res){
+  					if(res==1){
+  						if(rumoOrder.timer)clearInterval(rumoOrder.timer);
+  						$("#loading").show().text("支付成功!.....").fadeOut("slow");
+  					}
+  				}).fail(function(){
+  					if(rumoOrder.timer)clearInterval(rumoOrder.timer);
+  					$("#loading").show().text("支付失败，请客服QQ：1454545454.....");
+  				});
+  			},
+  			
+  			alipay:function(obj){
+  				 var orderId = $(obj).data("opid");
+  				 var newWin = window.open("http://localhost:8080/admin/alipay/payloading"); 
+				 $.post("http://localhost:8080/admin/alipay",{orderId:orderId},function(res){
+					 newWin.location.href = res;  
+				 });
+  			}
+  		}
+  </script>
+</body>
+</html>
