@@ -43,9 +43,7 @@ import com.rumo.config.pay.commons.weixin.config.WeiXinConstants;
 import com.rumo.config.pay.commons.weixin.enumtype.WeiXinPayTradeStatus;
 import com.rumo.config.pay.commons.weixin.request.QrCodeRequest;
 import com.rumo.mapper.OrderMapper;
-import com.rumo.pojo.AdminCenter;
 import com.rumo.pojo.Order;
-import com.rumo.util.ip.TmIpUtil;
 
 import net.sf.json.JSONObject;
 
